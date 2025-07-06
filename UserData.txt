@@ -1,0 +1,43 @@
+#!/bin/bash
+apt update -y
+apt install -y nodejs npm
+mkdir -p /home/ubuntu/app
+cd /home/ubuntu/app
+
+cat <<EOF > app.js
+const express = require("express");
+const AWS = require("aws-sdk");
+const bodyParser = require("body-parser");
+
+const app = express();
+app.use(bodyParser.json());
+
+AWS.config.update({ region: "ap-south-1" });
+const s3 = new AWS.S3();
+
+app.post("/submit", async (req, res) => {
+  const { name, email, message } = req.body;
+  const key = \`submissions/\${Date.now()}_\${name}.json\`;
+
+  const params = {
+    Bucket: "myawsbucket-rx1",
+    Key: key,
+    Body: JSON.stringify({ name, email, message }),
+    ContentType: "application/json",
+  };
+
+  try {
+    await s3.putObject(params).promise();
+    res.json({ message: "Submission successful!" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to submit" });
+  }
+});
+
+app.listen(3000, () => console.log("Server running on port 3000"));
+EOF
+
+npm init -y
+npm install express aws-sdk body-parser
+node app.js &

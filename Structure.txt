@@ -1,0 +1,11 @@
+aws-static-website/
+├── s3-frontend/
+│   ├── index.html
+│   ├── contact.html
+│   ├── script.js
+│   └── style.css
+├── ec2-backend/
+│   ├── app.js
+├── project-screenshots/
+├── .gitignore
+└── README.md
